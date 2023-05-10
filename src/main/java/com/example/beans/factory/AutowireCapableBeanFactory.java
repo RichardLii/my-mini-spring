@@ -2,6 +2,8 @@ package com.example.beans.factory;
 
 import com.example.beans.BeansException;
 import com.example.beans.beandefinition.BeanDefinition;
+import com.example.beans.strategy.InstantiationStrategy;
+import com.example.beans.strategy.SimpleInstantiationStrategy;
 
 /**
  * 可自动装配的BeanFactory
@@ -9,6 +11,9 @@ import com.example.beans.beandefinition.BeanDefinition;
  * @author keemo 2023/5/10
  */
 public class AutowireCapableBeanFactory extends AbstractBeanFactory {
+
+    // 实例化策略
+    private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
 
     /**
      * 根据BeanDefinition信息创建bean，留给具体子类来实现
@@ -28,15 +33,23 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
      * @return bean
      */
     private Object doCreateBean(BeanDefinition beanDefinition) {
-        Class<?> beanClass = beanDefinition.getClazz();
+        Object bean;
 
-        Object bean = null;
         try {
-            bean = beanClass.newInstance();
+            bean = getInstantiationStrategy().instantiate(beanDefinition);
         } catch (Exception e) {
             throw new BeansException("Instantiation of bean failed", e);
         }
 
         return bean;
     }
+
+    public InstantiationStrategy getInstantiationStrategy() {
+        return instantiationStrategy;
+    }
+
+    public void setInstantiationStrategy(InstantiationStrategy instantiationStrategy) {
+        this.instantiationStrategy = instantiationStrategy;
+    }
+
 }
