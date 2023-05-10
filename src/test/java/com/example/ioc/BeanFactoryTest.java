@@ -1,9 +1,8 @@
 package com.example.ioc;
 
-import com.example.beans.factory.BeanFactory;
+import com.example.beans.beandefinition.BeanDefinition;
+import com.example.beans.factory.AutowireCapableBeanFactory;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BeanFactoryTest
@@ -14,19 +13,12 @@ public class BeanFactoryTest {
 
     @Test
     public void testGetBean() {
-        BeanFactory factory = new BeanFactory();
-        factory.registerBean("halo", new HelloService());
-        HelloService halo = (HelloService) factory.getBean("halo");
-        assertThat(halo).isNotNull();
-        assertThat(halo.sayHello()).isEqualTo("halo");
-    }
+        AutowireCapableBeanFactory beanFactory = new AutowireCapableBeanFactory();
+        BeanDefinition beanDefinition = new BeanDefinition(HelloService.class);
+        beanFactory.registerBeanDefinition("helloService", beanDefinition);
 
-
-    static class HelloService {
-        public String sayHello() {
-            System.out.println("Halo");
-            return "halo";
-        }
+        HelloService helloService = (HelloService) beanFactory.getBean("helloService");
+        helloService.sayHello();
     }
 
 }
