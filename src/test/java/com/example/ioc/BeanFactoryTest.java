@@ -2,6 +2,7 @@ package com.example.ioc;
 
 import com.example.beans.beandefinition.BeanDefinition;
 import com.example.beans.factory.AutowireCapableBeanFactory;
+import com.example.testbean.HelloService;
 import org.junit.Test;
 
 /**

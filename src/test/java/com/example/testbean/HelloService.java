@@ -1,4 +1,4 @@
-package com.example.ioc;
+package com.example.testbean;
 
 /**
  * HelloService

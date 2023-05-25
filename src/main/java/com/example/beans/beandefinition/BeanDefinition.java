@@ -9,8 +9,18 @@ public class BeanDefinition {
 
     private Class<?> clazz;
 
+    /**
+     * 新增 bean 属性字段
+     */
+    private PropertyValues propertyValues;
+
     public BeanDefinition(Class<?> clazz) {
         this.clazz = clazz;
+    }
+
+    public BeanDefinition(Class<?> clazz, PropertyValues propertyValues) {
+        this.clazz = clazz;
+        this.propertyValues = propertyValues;
     }
 
     public Class<?> getClazz() {
@@ -19,5 +29,13 @@ public class BeanDefinition {
 
     public void setClazz(Class<?> clazz) {
         this.clazz = clazz;
+    }
+
+    public PropertyValues getPropertyValues() {
+        return propertyValues;
+    }
+
+    public void setPropertyValues(PropertyValues propertyValues) {
+        this.propertyValues = propertyValues;
     }
 }
