@@ -2,6 +2,7 @@ package com.example.beans.factory;
 
 import com.example.beans.BeansException;
 import com.example.beans.beandefinition.BeanDefinition;
+import com.example.beans.beandefinition.BeanReference;
 import com.example.beans.beandefinition.PropertyValue;
 import com.example.beans.strategy.InstantiationStrategy;
 import com.example.beans.strategy.SimpleInstantiationStrategy;
@@ -39,7 +40,7 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         Object bean;
 
         try {
-            // 创建bean实例
+            // 创建bean实例，需要注意的是创建bean实例会调用类的无参构造器，所以类需要有无参的构造方法
             bean = createBeanInstance(beanDefinition);
 
             // 设置bean属性
@@ -72,6 +73,12 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         for (PropertyValue propertyValue : beanDefinition.getPropertyValues().getPropertyValueList()) {
             String name = propertyValue.getName();
             Object value = propertyValue.getValue();
+
+            // 增加对BeanReference引用的识别
+            if (value instanceof BeanReference) {
+                BeanReference beanReference = (BeanReference) value;
+                value = getBean(beanReference.getBeanName());
+            }
 
             try {
                 Field field = bean.getClass().getDeclaredField(name);
