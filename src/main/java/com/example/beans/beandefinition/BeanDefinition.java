@@ -15,12 +15,14 @@ public class BeanDefinition {
     private PropertyValues propertyValues;
 
     public BeanDefinition(Class<?> clazz) {
-        this.clazz = clazz;
+        this(clazz, null);
     }
 
     public BeanDefinition(Class<?> clazz, PropertyValues propertyValues) {
         this.clazz = clazz;
-        this.propertyValues = propertyValues;
+
+        // 假如默认初始值，防止读取BeanDefinition信息时候的空指针异常
+        this.propertyValues = propertyValues != null ? propertyValues : new PropertyValues();
     }
 
     public Class<?> getClazz() {

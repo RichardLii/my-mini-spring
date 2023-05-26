@@ -24,6 +24,11 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
     }
 
     @Override
+    public boolean containsBeanDefinition(String beanName) {
+        return beanDefinitionMap.containsKey(beanName);
+    }
+
+    @Override
     public Object getBean(String beanName) {
         Object bean = beanMap.get(beanName);
 
