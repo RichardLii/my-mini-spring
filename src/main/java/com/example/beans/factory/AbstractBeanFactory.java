@@ -33,6 +33,12 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
         return beanDefinitionMap.containsKey(beanName);
     }
 
+    /**
+     * 根据bean名称获取bean
+     *
+     * @param beanName bean的名称
+     * @return bean
+     */
     @Override
     public Object getBean(String beanName) {
         Object bean = beanMap.get(beanName);
@@ -44,6 +50,39 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
         }
 
         return bean;
+    }
+
+    /**
+     * 获取指定类型的bean
+     *
+     * @param beanName     beanName
+     * @param requiredType 需要的类型
+     * @return 返回bean
+     */
+    @Override
+    public <T> T getBean(String beanName, Class<T> requiredType) throws BeansException {
+        return (T) getBean(beanName);
+    }
+
+    /**
+     * 获取指定类型的所有bean
+     *
+     * @param type 指定类型
+     * @return 返回所有符合的bean
+     */
+    @Override
+    public <T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException {
+        Map<String, T> result = new HashMap<>();
+
+        beanDefinitionMap.forEach((beanName, beanDefinition) -> {
+            Class<?> beanClass = beanDefinition.getClazz();
+            if (type.isAssignableFrom(beanClass)) {
+                T bean = (T) getBean(beanName);
+                result.put(beanName, bean);
+            }
+        });
+
+        return result;
     }
 
     /**

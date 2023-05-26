@@ -147,8 +147,7 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
      * @param beanDefinition beanDefinition
      */
     private void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) {
-        //TODO 后面会实现
-        System.out.println("执行bean[" + beanName + "]的初始化方法");
+        // TODO 后面会实现
     }
 
     /**

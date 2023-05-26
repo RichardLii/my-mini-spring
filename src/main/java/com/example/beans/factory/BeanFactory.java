@@ -1,6 +1,9 @@
 package com.example.beans.factory;
 
+import com.example.beans.BeansException;
 import com.example.beans.beandefinition.BeanDefinition;
+
+import java.util.Map;
 
 /**
  * BeanFactory
@@ -16,6 +19,23 @@ public interface BeanFactory {
      * @return bean
      */
     Object getBean(String beanName);
+
+    /**
+     * 获取指定类型的bean
+     *
+     * @param beanName     beanName
+     * @param requiredType 需要的类型
+     * @return 返回bean
+     */
+    <T> T getBean(String beanName, Class<T> requiredType) throws BeansException;
+
+    /**
+     * 获取指定类型的所有bean
+     *
+     * @param type 指定类型
+     * @return 返回所有符合的bean
+     */
+    <T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException;
 
     /**
      * 获取BeanDefinition信息

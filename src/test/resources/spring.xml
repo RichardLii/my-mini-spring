@@ -15,4 +15,9 @@
     <bean id="car" class="com.example.testbean.Car">
         <property name="brand" value="porsche"/>
     </bean>
+
+    <bean class="com.example.processor.CustomBeanFactoryPostProcessor"/>
+
+    <bean class="com.example.processor.CustomerBeanPostProcessor"/>
+
 </beans>

@@ -13,7 +13,7 @@ public class CustomerBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        System.out.println("CustomerBeanPostProcessor# postProcessBeforeInitialization");
+        System.out.println("自定义Bean后置处理器，bean初始化前执行，beanName: " + beanName);
 
         //换兰博基尼
         if ("car".equals(beanName)) {
@@ -25,7 +25,7 @@ public class CustomerBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        System.out.println("CustomerBeanPostProcessor# postProcessAfterInitialization");
+        System.out.println("自定义Bean后置处理器，bean初始化后执行，beanName: " + beanName);
         return bean;
     }
 
