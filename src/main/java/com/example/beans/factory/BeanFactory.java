@@ -1,5 +1,7 @@
 package com.example.beans.factory;
 
+import com.example.beans.beandefinition.BeanDefinition;
+
 /**
  * BeanFactory
  *
@@ -14,5 +16,13 @@ public interface BeanFactory {
      * @return bean
      */
     Object getBean(String beanName);
+
+    /**
+     * 获取BeanDefinition信息
+     *
+     * @param beanName bean名称
+     * @return BeanDefinition信息
+     */
+    BeanDefinition getBeanDefinition(String beanName);
 
 }

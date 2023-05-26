@@ -3,8 +3,11 @@ package com.example.beans.factory;
 import com.example.beans.BeansException;
 import com.example.beans.beandefinition.BeanDefinition;
 import com.example.beans.beandefinition.BeanDefinitionRegistry;
+import com.example.beans.processor.BeanPostProcessor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +20,8 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
 
     private final Map<String, Object> beanMap = new HashMap<>();
+
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
@@ -34,7 +39,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
 
         if (bean == null) {
             // bean如果为null的话，则需要创建bean
-            bean = createBean(getBeanDefinition(beanName));
+            bean = createBean(beanName, getBeanDefinition(beanName));
             beanMap.put(beanName, bean);
         }
 
@@ -44,10 +49,11 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
     /**
      * 根据BeanDefinition信息创建bean，留给具体子类来实现
      *
+     * @param beanName       beanName
      * @param beanDefinition beanDefinition
      * @return bean
      */
-    protected abstract Object createBean(BeanDefinition beanDefinition) throws BeansException;
+    protected abstract Object createBean(String beanName, BeanDefinition beanDefinition) throws BeansException;
 
     /**
      * 获取 beanDefinition
@@ -55,7 +61,8 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
      * @param beanName bean名称
      * @return beanDefinition
      */
-    private BeanDefinition getBeanDefinition(String beanName) {
+    @Override
+    public BeanDefinition getBeanDefinition(String beanName) {
         BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
 
         if (beanDefinition == null) {
@@ -63,6 +70,26 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
         }
 
         return beanDefinition;
+    }
+
+    /**
+     * 获取BeanPostProcessor
+     *
+     * @return BeanPostProcessor
+     */
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return this.beanPostProcessors;
+    }
+
+    /**
+     * 添加bean后置处理器
+     *
+     * @param beanPostProcessor bean后置处理器
+     */
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        //有则覆盖
+        this.beanPostProcessors.remove(beanPostProcessor);
+        this.beanPostProcessors.add(beanPostProcessor);
     }
 
 }
