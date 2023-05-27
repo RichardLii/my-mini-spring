@@ -1,14 +1,20 @@
 package com.example.beans.factory;
 
+import cn.hutool.core.util.ClassUtil;
+import cn.hutool.core.util.StrUtil;
 import com.example.beans.BeansException;
 import com.example.beans.beandefinition.BeanDefinition;
 import com.example.beans.beandefinition.BeanReference;
 import com.example.beans.beandefinition.PropertyValue;
+import com.example.beans.beandefinition.initanddestroy.DisposableBean;
+import com.example.beans.beandefinition.initanddestroy.DisposableBeanAdapter;
+import com.example.beans.beandefinition.initanddestroy.InitializingBean;
 import com.example.beans.processor.BeanPostProcessor;
 import com.example.beans.strategy.InstantiationStrategy;
 import com.example.beans.strategy.SimpleInstantiationStrategy;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * 可自动装配的BeanFactory
@@ -55,6 +61,9 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         } catch (Exception e) {
             throw new BeansException("Instantiation of bean failed", e);
         }
+
+        // 注册有销毁方法的bean
+        registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
 
         return bean;
     }
@@ -109,8 +118,12 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         // 执行BeanPostProcessor的前置处理
         Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
 
-        //TODO 后面会在此处执行bean的初始化方法
-        invokeInitMethods(beanName, wrappedBean, beanDefinition);
+        // 执行bean的初始化方法
+        try {
+            invokeInitMethods(beanName, wrappedBean, beanDefinition);
+        } catch (Throwable ex) {
+            throw new BeansException("Invocation of init method of bean[" + beanName + "] failed", ex);
+        }
 
         // 执行BeanPostProcessor的后置处理
         wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
@@ -146,8 +159,24 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
      * @param bean           bean
      * @param beanDefinition beanDefinition
      */
-    private void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) {
-        // TODO 后面会实现
+    private void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) throws Throwable {
+        // 如果一个类既实现了InitializingBean接口，又在类的内部的定义了自定义初始化方法，那么将会执行两个步骤。
+
+        // 1.调用InitializingBean接口的afterPropertiesSet()方法
+        if (bean instanceof InitializingBean) {
+            ((InitializingBean) bean).afterPropertiesSet();
+        }
+
+        // 2.调用bean自定义的initMethod
+        String initMethodName = beanDefinition.getInitMethodName();
+
+        if (StrUtil.isNotEmpty(initMethodName)) {
+            Method initMethod = ClassUtil.getPublicMethod(beanDefinition.getClazz(), initMethodName);
+            if (initMethod == null) {
+                throw new BeansException("Could not find an init method named '" + initMethodName + "' on bean with name '" + beanName + "'");
+            }
+            initMethod.invoke(bean);
+        }
     }
 
     /**
@@ -169,6 +198,20 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         }
 
         return result;
+    }
+
+    /**
+     * 注册有销毁方法的bean，即bean继承自DisposableBean或有自定义的销毁方法
+     *
+     * @param beanName
+     * @param bean
+     * @param beanDefinition
+     */
+    private void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {
+        // 类实现了DisposableBean接口或者自定义销毁方法，则向bean工厂的销毁容器中注入销毁bean的包装类
+        if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())) {
+            registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
+        }
     }
 
     public InstantiationStrategy getInstantiationStrategy() {

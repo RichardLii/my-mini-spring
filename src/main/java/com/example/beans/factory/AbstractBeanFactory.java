@@ -3,6 +3,7 @@ package com.example.beans.factory;
 import com.example.beans.BeansException;
 import com.example.beans.beandefinition.BeanDefinition;
 import com.example.beans.beandefinition.BeanDefinitionRegistry;
+import com.example.beans.beandefinition.initanddestroy.DisposableBean;
 import com.example.beans.processor.BeanPostProcessor;
 
 import java.util.ArrayList;
@@ -23,9 +24,31 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
 
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
+    private final Map<String, DisposableBean> disposableBeans = new HashMap<>();
+
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
         beanDefinitionMap.put(beanName, beanDefinition);
+    }
+
+    public void registerDisposableBean(String beanName, DisposableBean bean) {
+        disposableBeans.put(beanName, bean);
+    }
+
+    /**
+     * 销毁单例bean
+     */
+    public void destroySingletons() {
+        ArrayList<String> beanNames = new ArrayList<>(disposableBeans.keySet());
+
+        for (String beanName : beanNames) {
+            DisposableBean disposableBean = disposableBeans.remove(beanName);
+            try {
+                disposableBean.destroy();
+            } catch (Exception e) {
+                throw new BeansException("Destroy method on bean with name '" + beanName + "' threw an exception", e);
+            }
+        }
     }
 
     @Override

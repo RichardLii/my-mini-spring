@@ -34,6 +34,32 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     }
 
     /**
+     * 关闭应用上下文
+     */
+    @Override
+    public void close() {
+        doClose();
+    }
+
+    /**
+     * 向虚拟机中注册一个钩子方法，在虚拟机关闭之前执行关闭容器等操作
+     */
+    @Override
+    public void registerShutdownHook() {
+        Thread shutdownHook = new Thread(this::doClose);
+
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
+    }
+
+    private void doClose() {
+        destroyBeans();
+    }
+
+    private void destroyBeans() {
+        beanFactory.destroySingletons();
+    }
+
+    /**
      * 刷新bean工厂
      */
     private void refreshBeanFactory() throws BeansException {
