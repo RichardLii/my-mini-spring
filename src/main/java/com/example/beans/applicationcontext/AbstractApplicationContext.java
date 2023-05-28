@@ -1,6 +1,7 @@
 package com.example.beans.applicationcontext;
 
 import com.example.beans.BeansException;
+import com.example.beans.aware.ApplicationContextAwareProcessor;
 import com.example.beans.beandefinition.BeanDefinition;
 import com.example.beans.factory.AbstractBeanFactory;
 import com.example.beans.factory.AutowireCapableBeanFactory;
@@ -25,6 +26,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     public void refresh() throws BeansException {
         // 刷新bean工厂 --> 创建bean工厂，加载BeanDefinition信息，将创建后的工厂赋值给属性
         refreshBeanFactory();
+
+        // 添加ApplicationContextAwareProcessor，让实现ApplicationContextAware的bean能感知到应用上下文
+        beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
 
         // 在bean实例化之前，执行BeanFactoryPostProcessor
         invokeBeanFactoryPostProcessors(beanFactory);

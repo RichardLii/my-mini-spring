@@ -20,4 +20,6 @@
 
     <bean class="com.example.processor.CustomerBeanPostProcessor"/>
 
+    <bean id="awareHelloService" class="com.example.testbean.AwareHelloService"/>
+
 </beans>

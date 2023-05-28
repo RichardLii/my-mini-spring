@@ -3,6 +3,7 @@ package com.example.beans.factory;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.beans.BeansException;
+import com.example.beans.aware.BeanFactoryAware;
 import com.example.beans.beandefinition.BeanDefinition;
 import com.example.beans.beandefinition.BeanReference;
 import com.example.beans.beandefinition.PropertyValue;
@@ -115,6 +116,11 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
      * @return 返回包装后的bean
      */
     private Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
+        // 如果bean实现了BeanFactoryAware接口，那么在初始化bean的时候将会调用setBeanFactory()方法，将beanFactory传递给bean对象
+        if (bean instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) bean).setBeanFactory(this);
+        }
+
         // 执行BeanPostProcessor的前置处理
         Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
 
