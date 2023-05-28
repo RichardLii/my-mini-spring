@@ -4,6 +4,7 @@ import com.example.beans.BeansException;
 import com.example.beans.beandefinition.BeanDefinition;
 import com.example.beans.beandefinition.BeanDefinitionRegistry;
 import com.example.beans.beandefinition.initanddestroy.DisposableBean;
+import com.example.beans.factorybean.FactoryBean;
 import com.example.beans.processor.BeanPostProcessor;
 
 import java.util.ArrayList;
@@ -25,6 +26,9 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
     private final Map<String, DisposableBean> disposableBeans = new HashMap<>();
+
+    // FactoryBean的缓存
+    private final Map<String, Object> factoryBeanObjectCache = new HashMap<>();
 
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
@@ -72,7 +76,35 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
             beanMap.put(beanName, bean);
         }
 
-        return bean;
+
+        return getObjectForBeanInstance(bean, beanName);
+    }
+
+    /**
+     * 获取bean实例，封装了对FactoryBean类型bean的处理
+     *
+     * @param beanInstance bean实例
+     * @param beanName     bean名称
+     * @return 返回bean实例
+     */
+    private Object getObjectForBeanInstance(Object beanInstance, String beanName) {
+        Object result = beanInstance;
+
+        if (beanInstance instanceof FactoryBean) {
+            FactoryBean factoryBean = (FactoryBean) beanInstance;
+            try {
+                // 如果bean是FactoryBean类型，那么会返回它的getObject()方法的结果而不是bean本身
+                result = this.factoryBeanObjectCache.get(beanName);
+                if (result == null) {
+                    result = factoryBean.getObject();
+                    this.factoryBeanObjectCache.put(beanName, result);
+                }
+            } catch (Exception ex) {
+                throw new BeansException("FactoryBean threw exception on object[" + beanName + "] creation", ex);
+            }
+        }
+
+        return result;
     }
 
     /**
