@@ -3,11 +3,18 @@ package com.example.beans.applicationcontext;
 import com.example.beans.BeansException;
 import com.example.beans.aware.ApplicationContextAwareProcessor;
 import com.example.beans.beandefinition.BeanDefinition;
+import com.example.beans.eventandlistener.ApplicationEvent;
+import com.example.beans.eventandlistener.ApplicationListener;
+import com.example.beans.eventandlistener.event.ContextClosedEvent;
+import com.example.beans.eventandlistener.event.ContextRefreshedEvent;
+import com.example.beans.eventandlistener.multicaster.ApplicationEventMulticaster;
+import com.example.beans.eventandlistener.multicaster.SimpleApplicationEventMulticaster;
 import com.example.beans.factory.AbstractBeanFactory;
 import com.example.beans.factory.AutowireCapableBeanFactory;
 import com.example.beans.processor.BeanFactoryPostProcessor;
 import com.example.beans.processor.BeanPostProcessor;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -17,7 +24,14 @@ import java.util.Map;
  */
 public abstract class AbstractApplicationContext implements ApplicationContext {
 
+    public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
+
     private AbstractBeanFactory beanFactory;
+
+    /**
+     * 事件广播中心
+     */
+    private ApplicationEventMulticaster applicationEventMulticaster;
 
     /**
      * 刷新容器
@@ -35,6 +49,15 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
         //BeanPostProcessor需要提前与其他bean实例化之前注册
         registerBeanPostProcessors(beanFactory);
+
+        // 初始化事件发布者
+        initApplicationEventMulticaster();
+
+        // 注册事件监听器
+        registerListeners();
+
+        // 发布容器刷新完成事件
+        finishRefresh();
     }
 
     /**
@@ -55,7 +78,21 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
+    /**
+     * 发布事件
+     *
+     * @param event 事件
+     */
+    @Override
+    public void publishEvent(ApplicationEvent event) {
+        applicationEventMulticaster.multicastEvent(event);
+    }
+
     private void doClose() {
+        // 发布容器关闭事件
+        publishEvent(new ContextClosedEvent(this));
+
+        // 执行bean的销毁方法
         destroyBeans();
     }
 
@@ -97,6 +134,35 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
             beanFactory.addBeanPostProcessor(beanPostProcessor);
         }
     }
+
+
+    /**
+     * 初始化事件发布者
+     */
+    private void initApplicationEventMulticaster() {
+        applicationEventMulticaster = new SimpleApplicationEventMulticaster(this.beanFactory);
+
+        beanFactory.getBeanMap().put(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster);
+    }
+
+    /**
+     * 注册事件监听器
+     */
+    private void registerListeners() {
+        Collection<ApplicationListener> applicationListeners = getBeansOfType(ApplicationListener.class).values();
+
+        for (ApplicationListener applicationListener : applicationListeners) {
+            applicationEventMulticaster.addApplicationListener(applicationListener);
+        }
+    }
+
+    /**
+     * 发布容器刷新完成事件
+     */
+    private void finishRefresh() {
+        publishEvent(new ContextRefreshedEvent(this));
+    }
+
 
     /**
      * 加载BeanDefinition

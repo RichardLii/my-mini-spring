@@ -186,4 +186,8 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
         this.beanPostProcessors.add(beanPostProcessor);
     }
 
+    public Map<String, Object> getBeanMap() {
+        return beanMap;
+    }
+
 }
