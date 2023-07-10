@@ -20,4 +20,6 @@ public class AdvisedSupport {
     private MethodInterceptor methodInterceptor;
 
     private MethodMatcher methodMatcher;
+
+    private boolean cglibProxyFlag;
 }

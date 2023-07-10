@@ -2,10 +2,7 @@ package com.example.aop;
 
 import com.example.aop.aspectj.AspectJExpressionPointcut;
 import com.example.aop.aspectj.MethodMatcher;
-import com.example.aop.proxy.AdvisedSupport;
-import com.example.aop.proxy.CglibAopProxy;
-import com.example.aop.proxy.JdkDynamicAopProxy;
-import com.example.aop.proxy.TargetSource;
+import com.example.aop.proxy.*;
 import com.example.testbean.WorldService;
 import com.example.testbean.WorldServiceImpl;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -59,6 +56,22 @@ public class DynamicProxyTest {
     @Test
     public void testCglibDynamicProxy() throws Exception {
         WorldService proxy = (WorldService) new CglibAopProxy(advisedSupport).getProxy();
+        proxy.explode();
+    }
+
+    /**
+     * 代理工厂测试
+     */
+    @Test
+    public void testProxyFactory() throws Exception {
+        // 使用JDK动态代理
+        advisedSupport.setCglibProxyFlag(false);
+        WorldService proxy = (WorldService) new ProxyFactory(advisedSupport).getProxy();
+        proxy.explode();
+
+        // 使用CGLIB动态代理
+        advisedSupport.setCglibProxyFlag(true);
+        proxy = (WorldService) new ProxyFactory(advisedSupport).getProxy();
         proxy.explode();
     }
 }
