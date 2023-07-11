@@ -3,6 +3,8 @@ package com.example.aop;
 import com.example.aop.advice.MethodBeforeAdvice;
 import com.example.aop.advice.MethodBeforeAdviceInterceptor;
 import com.example.aop.aspectj.AspectJExpressionPointcut;
+import com.example.aop.aspectj.AspectJExpressionPointcutAdvisor;
+import com.example.aop.aspectj.ClassFilter;
 import com.example.aop.aspectj.MethodMatcher;
 import com.example.aop.proxy.*;
 import com.example.testbean.WorldService;
@@ -83,13 +85,45 @@ public class DynamicProxyTest {
     @Test
     public void testBeforeAdvice() throws Exception {
         // 设置BeforeAdvice
-        MethodBeforeAdvice beforeAdvice = (method, args, target) -> {
-            System.out.println("BeforeAdvice: do something before the earth explodes");
-        };
+        MethodBeforeAdvice beforeAdvice = (method, args, target) -> System.out.println("BeforeAdvice: do something before the earth explodes");
 
         advisedSupport.setMethodInterceptor(new MethodBeforeAdviceInterceptor(beforeAdvice));
 
         WorldService proxy = (WorldService) new ProxyFactory(advisedSupport).getProxy();
         proxy.explode();
+    }
+
+    /**
+     * 测试切点增强
+     */
+    @Test
+    public void testPointcutAdvisor() throws Exception {
+        // 创建切点增强器
+        AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
+
+        // 切点（要增强什么方法）
+        String expression = "execution(* com.example.testbean.WorldService.explode(..))";
+        advisor.setExpression(expression);
+
+        // 增强（找到对应切点之后进行什么样的处理）
+        MethodBeforeAdviceInterceptor methodInterceptor = new MethodBeforeAdviceInterceptor(
+                (method, args, target) -> System.out.println("BeforeAdvice: do something before the earth explodes"));
+        advisor.setAdvice(methodInterceptor);
+
+        // 判断是否符合要求
+        WorldService worldService = new WorldServiceImpl();
+
+        ClassFilter classFilter = advisor.getPointcut().getClassFilter();
+
+        if (classFilter.matches(worldService.getClass())) {
+            AdvisedSupport advisedSupport = new AdvisedSupport();
+            advisedSupport.setTargetSource(new TargetSource(worldService));
+            advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+            advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
+//			advisedSupport.setProxyTargetClass(true);   //JDK or CGLIB
+
+            WorldService proxy = (WorldService) new ProxyFactory(advisedSupport).getProxy();
+            proxy.explode();
+        }
     }
 }
