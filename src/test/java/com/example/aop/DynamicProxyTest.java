@@ -1,5 +1,7 @@
 package com.example.aop;
 
+import com.example.aop.advice.MethodBeforeAdvice;
+import com.example.aop.advice.MethodBeforeAdviceInterceptor;
 import com.example.aop.aspectj.AspectJExpressionPointcut;
 import com.example.aop.aspectj.MethodMatcher;
 import com.example.aop.proxy.*;
@@ -72,6 +74,22 @@ public class DynamicProxyTest {
         // 使用CGLIB动态代理
         advisedSupport.setCglibProxyFlag(true);
         proxy = (WorldService) new ProxyFactory(advisedSupport).getProxy();
+        proxy.explode();
+    }
+
+    /**
+     * 测试前置增强
+     */
+    @Test
+    public void testBeforeAdvice() throws Exception {
+        // 设置BeforeAdvice
+        MethodBeforeAdvice beforeAdvice = (method, args, target) -> {
+            System.out.println("BeforeAdvice: do something before the earth explodes");
+        };
+
+        advisedSupport.setMethodInterceptor(new MethodBeforeAdviceInterceptor(beforeAdvice));
+
+        WorldService proxy = (WorldService) new ProxyFactory(advisedSupport).getProxy();
         proxy.explode();
     }
 }
