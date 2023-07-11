@@ -216,4 +216,13 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         return beanFactory.getBeanDefinition(beanName);
     }
 
+    /**
+     * 返回定义的所有bean的名称
+     *
+     * @return 所有bean的名称
+     */
+    @Override
+    public String[] getBeanDefinitionNames() {
+        return beanFactory.getBeanDefinitionNames();
+    }
 }

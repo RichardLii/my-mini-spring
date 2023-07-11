@@ -7,10 +7,7 @@ import com.example.beans.beandefinition.initanddestroy.DisposableBean;
 import com.example.beans.factorybean.FactoryBean;
 import com.example.beans.processor.BeanPostProcessor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * AbstractBeanFactory
@@ -164,6 +161,17 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
         }
 
         return beanDefinition;
+    }
+
+    /**
+     * 返回定义的所有bean的名称
+     *
+     * @return 所有bean的名称
+     */
+    @Override
+    public String[] getBeanDefinitionNames() {
+        Set<String> beanNames = beanDefinitionMap.keySet();
+        return beanNames.toArray(new String[0]);
     }
 
     /**
