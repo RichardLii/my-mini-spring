@@ -1,10 +1,17 @@
 package com.example.beans.beandefinition;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Objects;
+
 /**
  * BeanDefinition
  *
  * @author keemo 2023/5/10
  */
+@Getter
+@Setter
 public class BeanDefinition {
 
     private Class<?> clazz;
@@ -35,35 +42,18 @@ public class BeanDefinition {
         this.propertyValues = propertyValues != null ? propertyValues : new PropertyValues();
     }
 
-    public Class<?> getClazz() {
-        return clazz;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BeanDefinition that = (BeanDefinition) o;
+        return clazz.equals(that.getClazz());
     }
 
-    public void setClazz(Class<?> clazz) {
-        this.clazz = clazz;
-    }
-
-    public PropertyValues getPropertyValues() {
-        return propertyValues;
-    }
-
-    public void setPropertyValues(PropertyValues propertyValues) {
-        this.propertyValues = propertyValues;
-    }
-
-    public String getInitMethodName() {
-        return initMethodName;
-    }
-
-    public void setInitMethodName(String initMethodName) {
-        this.initMethodName = initMethodName;
-    }
-
-    public String getDestroyMethodName() {
-        return destroyMethodName;
-    }
-
-    public void setDestroyMethodName(String destroyMethodName) {
-        this.destroyMethodName = destroyMethodName;
+    @Override
+    public int hashCode() {
+        return Objects.hash(clazz);
     }
 }
