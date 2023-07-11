@@ -13,6 +13,7 @@ import com.example.beans.factory.AbstractBeanFactory;
 import com.example.beans.factory.AutowireCapableBeanFactory;
 import com.example.beans.processor.BeanFactoryPostProcessor;
 import com.example.beans.processor.BeanPostProcessor;
+import com.example.util.StringValueResolver;
 
 import java.util.Collection;
 import java.util.Map;
@@ -224,5 +225,26 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     @Override
     public String[] getBeanDefinitionNames() {
         return beanFactory.getBeanDefinitionNames();
+    }
+
+    /**
+     * 添加值解析器
+     *
+     * @param valueResolver 字符串值解析器
+     */
+    @Override
+    public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
+        beanFactory.addEmbeddedValueResolver(valueResolver);
+    }
+
+    /**
+     * 解析值
+     *
+     * @param value 字符串值
+     * @return 解析后的字符串值
+     */
+    @Override
+    public String resolveEmbeddedValue(String value) {
+        return beanFactory.resolveEmbeddedValue(value);
     }
 }

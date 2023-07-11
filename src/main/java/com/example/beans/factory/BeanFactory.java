@@ -2,6 +2,7 @@ package com.example.beans.factory;
 
 import com.example.beans.BeansException;
 import com.example.beans.beandefinition.BeanDefinition;
+import com.example.util.StringValueResolver;
 
 import java.util.Map;
 
@@ -51,5 +52,20 @@ public interface BeanFactory {
      * @return 所有bean的名称
      */
     String[] getBeanDefinitionNames();
+
+    /**
+     * 添加值解析器
+     *
+     * @param valueResolver 字符串值解析器
+     */
+    void addEmbeddedValueResolver(StringValueResolver valueResolver);
+
+    /**
+     * 解析值
+     *
+     * @param value 字符串值
+     * @return 解析后的字符串值
+     */
+    String resolveEmbeddedValue(String value);
 
 }

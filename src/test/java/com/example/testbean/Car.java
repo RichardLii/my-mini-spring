@@ -1,6 +1,7 @@
 package com.example.testbean;
 
 import com.example.beans.annotation.Component;
+import com.example.beans.annotation.Value;
 
 /**
  * Car
@@ -9,6 +10,7 @@ import com.example.beans.annotation.Component;
  */
 @Component
 public class Car {
+    @Value("${brand}")
     private String brand;
 
     public Car() {

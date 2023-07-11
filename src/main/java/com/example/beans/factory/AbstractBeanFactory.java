@@ -6,6 +6,7 @@ import com.example.beans.beandefinition.BeanDefinitionRegistry;
 import com.example.beans.beandefinition.initanddestroy.DisposableBean;
 import com.example.beans.factorybean.FactoryBean;
 import com.example.beans.processor.BeanPostProcessor;
+import com.example.util.StringValueResolver;
 
 import java.util.*;
 
@@ -26,6 +27,9 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
 
     // FactoryBean的缓存
     private final Map<String, Object> factoryBeanObjectCache = new HashMap<>();
+
+    // 嵌入式值解析器
+    private final List<StringValueResolver> embeddedValueResolvers = new ArrayList<StringValueResolver>();
 
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
@@ -172,6 +176,29 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
     public String[] getBeanDefinitionNames() {
         Set<String> beanNames = beanDefinitionMap.keySet();
         return beanNames.toArray(new String[0]);
+    }
+
+    /**
+     * 添加值解析器
+     *
+     * @param valueResolver 字符串值解析器
+     */
+    public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
+        this.embeddedValueResolvers.add(valueResolver);
+    }
+
+    /**
+     * 解析值
+     *
+     * @param value 字符串值
+     * @return 解析后的字符串值
+     */
+    public String resolveEmbeddedValue(String value) {
+        String result = value;
+        for (StringValueResolver resolver : this.embeddedValueResolvers) {
+            result = resolver.resolveStringValue(result);
+        }
+        return result;
     }
 
     /**

@@ -7,6 +7,7 @@ import com.example.aop.aspectj.Pointcut;
 import com.example.beans.BeansException;
 import com.example.beans.aware.BeanFactoryAware;
 import com.example.beans.beandefinition.BeanDefinition;
+import com.example.beans.beandefinition.PropertyValues;
 import com.example.beans.factory.AutowireCapableBeanFactory;
 import com.example.beans.factory.BeanFactory;
 import com.example.beans.processor.InstantiationAwareBeanPostProcessor;
@@ -55,6 +56,11 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
         }
 
         return null;
+    }
+
+    @Override
+    public PropertyValues postProcessPropertyValues(PropertyValues pvs, Object bean, String beanName) throws BeansException {
+        return pvs;
     }
 
     private boolean isInfrastructureClass(Class<?> beanClass) {
