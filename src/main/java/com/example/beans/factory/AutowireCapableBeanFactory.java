@@ -11,6 +11,7 @@ import com.example.beans.beandefinition.initanddestroy.DisposableBean;
 import com.example.beans.beandefinition.initanddestroy.DisposableBeanAdapter;
 import com.example.beans.beandefinition.initanddestroy.InitializingBean;
 import com.example.beans.processor.BeanPostProcessor;
+import com.example.beans.processor.InstantiationAwareBeanPostProcessor;
 import com.example.beans.strategy.InstantiationStrategy;
 import com.example.beans.strategy.SimpleInstantiationStrategy;
 
@@ -36,7 +37,52 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
      */
     @Override
     protected Object createBean(String beanName, BeanDefinition beanDefinition) throws BeansException {
+        // 如果bean需要代理，则直接返回代理对象
+        Object bean = resolveBeforeInstantiation(beanName, beanDefinition);
+        if (bean != null) {
+            return bean;
+        }
+
         return doCreateBean(beanName, beanDefinition);
+    }
+
+    /**
+     * 执行InstantiationAwareBeanPostProcessor的方法，如果bean需要代理，直接返回代理对象
+     *
+     * @param beanName       bean名称
+     * @param beanDefinition beanDefinition
+     * @return bean
+     */
+    private Object resolveBeforeInstantiation(String beanName, BeanDefinition beanDefinition) {
+        Object bean = applyBeanPostProcessorsBeforeInstantiation(beanDefinition.getClazz(), beanName);
+
+        // 执行BeanPostProcessor的后置处理
+        if (bean != null) {
+            bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+        }
+
+        return bean;
+    }
+
+    /**
+     * bean初始化之前执行InstantiationAwareBeanPostProcessor的处理逻辑
+     *
+     * @param beanClass beanClass
+     * @param beanName  beanName
+     * @return bean
+     */
+    private Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            // Todo 只支持单个InstantiationAwareBeanPostProcessor的前置处理
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                Object result = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

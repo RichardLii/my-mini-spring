@@ -17,11 +17,15 @@ public class AspectJExpressionPointcutAdvisor implements PointcutAdvisor {
 
     public void setExpression(String expression) {
         this.expression = expression;
-        pointcut = new AspectJExpressionPointcut(expression);
     }
 
     @Override
     public Pointcut getPointcut() {
+        // 如果设置多次expression的话，只有第一次设置的expression生效
+        if (pointcut == null) {
+            pointcut = new AspectJExpressionPointcut(expression);
+        }
+
         return pointcut;
     }
 
