@@ -186,6 +186,17 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     /**
      * 获取指定类型的bean
      *
+     * @param requiredType 需要的类型
+     * @return 返回bean
+     */
+    @Override
+    public <T> T getBean(Class<T> requiredType) throws BeansException {
+        return beanFactory.getBean(requiredType);
+    }
+
+    /**
+     * 获取指定类型的bean
+     *
      * @param beanName     beanName
      * @param requiredType 需要的类型
      * @return 返回bean

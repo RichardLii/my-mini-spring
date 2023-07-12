@@ -111,6 +111,29 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanDefinition
     /**
      * 获取指定类型的bean
      *
+     * @param requiredType 需要的类型
+     * @return 返回bean
+     */
+    @Override
+    public <T> T getBean(Class<T> requiredType) throws BeansException {
+        List<String> beanNames = new ArrayList<>();
+
+        beanDefinitionMap.forEach((beanName, beanDefinition) -> {
+            if (requiredType.isAssignableFrom(beanDefinition.getClazz())) {
+                beanNames.add(beanName);
+            }
+        });
+
+        if (beanNames.size() != 1) {
+            throw new BeansException(requiredType + "expected single bean but found " + beanNames.size() + ": " + beanNames);
+        }
+
+        return getBean(beanNames.get(0), requiredType);
+    }
+
+    /**
+     * 获取指定类型的bean
+     *
      * @param beanName     beanName
      * @param requiredType 需要的类型
      * @return 返回bean

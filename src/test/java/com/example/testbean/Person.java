@@ -1,5 +1,7 @@
 package com.example.testbean;
 
+import com.example.beans.annotation.Autowired;
+import com.example.beans.annotation.Component;
 import com.example.beans.beandefinition.initanddestroy.DisposableBean;
 import com.example.beans.beandefinition.initanddestroy.InitializingBean;
 
@@ -8,6 +10,7 @@ import com.example.beans.beandefinition.initanddestroy.InitializingBean;
  *
  * @author keemo 2023/5/25
  */
+@Component
 public class Person implements InitializingBean, DisposableBean {
 
     private String name;
@@ -15,6 +18,7 @@ public class Person implements InitializingBean, DisposableBean {
     private int age;
 
     // 添加其他bean引用
+    @Autowired
     private Car car;
 
     public void personCustomInitMethod() {

@@ -24,6 +24,14 @@ public interface BeanFactory {
     /**
      * 获取指定类型的bean
      *
+     * @param requiredType 需要的类型
+     * @return 返回bean
+     */
+    <T> T getBean(Class<T> requiredType) throws BeansException;
+
+    /**
+     * 获取指定类型的bean
+     *
      * @param beanName     beanName
      * @param requiredType 需要的类型
      * @return 返回bean

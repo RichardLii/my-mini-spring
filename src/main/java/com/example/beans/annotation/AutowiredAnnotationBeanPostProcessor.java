@@ -38,7 +38,21 @@ public class AutowiredAnnotationBeanPostProcessor implements InstantiationAwareB
             }
         }
 
-        // 处理@Autowired注解（下一节实现）
+        // 处理@Autowired注解
+        for (Field field : fields) {
+            Autowired autowiredAnnotation = field.getAnnotation(Autowired.class);
+            if (autowiredAnnotation != null) {
+                Class<?> fieldType = field.getType();
+                Object dependentBean;
+                Qualifier qualifierAnno = field.getAnnotation(Qualifier.class);
+                if (qualifierAnno != null) {
+                    dependentBean = beanFactory.getBean(qualifierAnno.value(), fieldType);
+                } else {
+                    dependentBean = beanFactory.getBean(fieldType);
+                }
+                BeanUtil.setFieldValue(bean, field.getName(), dependentBean);
+            }
+        }
 
         return pvs;
     }
