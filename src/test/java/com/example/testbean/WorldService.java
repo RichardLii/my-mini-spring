@@ -8,4 +8,6 @@ package com.example.testbean;
 public interface WorldService {
 
     void explode();
+
+    String getName();
 }

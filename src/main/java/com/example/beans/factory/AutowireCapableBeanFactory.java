@@ -100,6 +100,12 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
             // bean实例化 --> 创建bean实例，需要注意的是创建bean实例会调用类的无参构造器，所以类需要有无参的构造方法
             bean = createBeanInstance(beanDefinition);
 
+            // bean实例化之后执行，返回值判断是否继续填充bean的属性，true则填充，false则直接返回bean
+            boolean continueWithPropertyPopulation = applyBeanPostProcessorsAfterInstantiation(beanName, bean);
+            if (!continueWithPropertyPopulation) {
+                return bean;
+            }
+
             // 在设置bean属性之前，允许BeanPostProcessor修改属性值（这里是设置@Value注解标注的属性的值）
             applyBeanPostprocessorsBeforeApplyingPropertyValues(beanName, bean, beanDefinition);
 
@@ -127,6 +133,26 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
      */
     private Object createBeanInstance(BeanDefinition beanDefinition) {
         return getInstantiationStrategy().instantiate(beanDefinition);
+    }
+
+    /**
+     * bean实例化后执行，如果返回false，不执行后续设置属性的逻辑
+     *
+     * @param beanName beanName
+     * @param bean     bean
+     * @return 是否继续填充bean的属性
+     */
+    private boolean applyBeanPostProcessorsAfterInstantiation(String beanName, Object bean) {
+        boolean continueWithPropertyPopulation = true;
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                if (!((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessAfterInstantiation(bean, beanName)) {
+                    continueWithPropertyPopulation = false;
+                    break;
+                }
+            }
+        }
+        return continueWithPropertyPopulation;
     }
 
     /**

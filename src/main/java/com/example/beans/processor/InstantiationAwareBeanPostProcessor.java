@@ -22,6 +22,15 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
     /**
      * bean实例化之后，设置属性之前执行
      *
+     * @param bean     bean
+     * @param beanName beanName
+     * @return true：继续填充bean的属性  false：不需要填充bean的属性 ，默认情况下应该返回true
+     */
+    boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException;
+
+    /**
+     * bean实例化之后，设置属性之前执行
+     *
      * @param pvs      bean属性
      * @param bean     bean
      * @param beanName bean名称

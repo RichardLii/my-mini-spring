@@ -7,8 +7,19 @@ package com.example.testbean;
  */
 public class WorldServiceImpl implements WorldService {
 
+    private String name;
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public void explode() {
-        System.out.println("The Earth is going to explode");
+        System.out.println("The " + name + " is going to explode");
     }
 }
